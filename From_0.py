@@ -172,9 +172,11 @@ def BarChart_Holidays():
     plt.title(label = 'Figure 1.3 - Holiday Days')
     plt.ylabel('Days')
     plt.xlabel('Holidays')
-    props = dict (boxstyle = 'round', facecolor = 'white', lw = 0.5)
+    plt.legend()
+    
+    props = dict (boxstyle = 'round', facecolor = 'red', lw = 0.5)
     textstr = '$\mathrm{Sample} = %.0f$' %(Sample) # Insert Legend with sample size
-    plt.text (0.85,600, textstr, bbox = props) # Paints the Legend in some part of the chart
+    plt.text (0.85,300, textstr, bbox = props) # Paints the Legend in some part of the chart
 
 # GROUP EXERCISE --------------------------- CREATING A PROFESSIONAL HISTOGRAM OF BIKE RENTALS --------------------------------------------------
 
@@ -185,28 +187,34 @@ def Histogram_Cnt():
 
     print(Rentals.describe())
     
-    md = Rentals.mean()
-    std = Rentals.std()
+    mu = Rentals.mean()
+    sigma = Rentals.std()
+    x = wbr.cnt
+    num_bins = 50
+    
     Sample = Rentals.count()
     
     fig, ax = plt.subplots()
     
-    plt.hist(Rentals, bins = 'auto', edgecolor = 'black', color='#0504aa', alpha=0.7, rwidth=0.85)
-        
-    plt.grid(axis='y', alpha=0.75)
-    plt.xticks(np.arange(0, 10000, step=1000))
-    plt.xlabel('Rentals')
-    plt.ylabel('Frecuency')
-    plt.title('Figure 1.4 - Daily Bicycle Rentals in Washington DC ' '\n' 'by Capital BikeShare 2011-2012')
-        
-    props = dict(boxstyle = 'round', facecolor = 'white', lw = 0.5)
-    textstr = '$\mathrm{Mean}=%.1f$\n$\mathrm{S.D.}=%.1f$\n$\mathrm{n}=%.0f$'%(md, std, Sample)
-    plt.text (6600, 81, textstr, bbox = props)
+    # the histogram of the data
+    n, bins, patches = ax.hist(x, num_bins, density=1)
     
-    plt.axvline(x=md, linewidth = 1, linestyle = 'solid', color = "red", label = 'Mean') # Adds Reference line for the Mean
-
-    y = ((1/(np.sqrt(2*np.pi)*std))*np.exp(-0.5*(1/std*(Rentals - md))**2))
-    ax.plot(Rentals, y, '--')    
+    # add a 'best fit' line
+    y = ((1 / (np.sqrt(2 * np.pi) * sigma)) *
+     np.exp(-0.5 * (1 / sigma * (bins - mu))**2))
+    
+    ax.plot(bins, y, '--')
+    ax.set_xlabel('Rentals')
+    ax.set_ylabel('Probability density')
+    ax.set_title(r'Figure 1.4 - Daily Bicycle Rentals in Washington DC ' '\n' 'by Capital BikeShare 2011-2012')
+    ax.grid(axis='both', alpha=0.75)
+    
+    ax.axvline(x=mu, linewidth = 1, linestyle = 'solid', color = "red", label = 'Mean') # Adds Reference line for the Mean
+    
+    props = dict(boxstyle = 'round', facecolor = 'white', lw = 0.5)
+    textstr = '$\mathrm{Mean}=%.1f$\n$\mathrm{S.D.}=%.1f$\n$\mathrm{n}=%.0f$'%(mu, sigma, Sample)
+    ax.text (6600, 0.00022, textstr, bbox = props)
+    
     fig.tight_layout()
     plt.show()
     
@@ -218,23 +226,6 @@ BarChart_Holidays() # GROUP EXERCISE HOLIDAYS - FIGURE 1.3 - Holiday Days
 Histogram_Cnt()     # GROUP EXERCISE HISTOGRAM CNT - FIGURE 1.4 - Daily Bicycle Rentals in Washington DC by Capital BikeShare 2011-2012
 
 
-wbr = Rental_Weather_2011_2012 
-Rentals = wbr.loc[:, "cnt"]
-    
-md = Rentals.mean()
-std = Rentals.std()
-x = md + std * np.random.randn(731)
-
-print(md)
-print(std)
-print(x)
-    
-fig, ax = plt.subplots()
-
-y = ((1/(np.sqrt(2*np.pi)*std))*np.exp(-0.5*(1/std*(bins - md))**2))
-ax.plot(std, y, '--')    
-fig.tight_layout()
-plt.show()
 
 
 
