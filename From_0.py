@@ -14,6 +14,8 @@ import os
 import pandas as pd # pd it's the 'alias' we will use for pandas
 import numpy as np  # np it's the 'alias' we will use for numpy
 import matplotlib.pyplot as plt # plt it's the 'alias' we will use for matplotlib
+from io import StringIO
+from tabulate import tabulate
 
 # --------------------------------------------------------------- FIRST STEPS WITH PYTHON --------------------------------------------------------
 
@@ -113,7 +115,7 @@ Rentals_Weather_2011.shape == Rentals_Weather_2012.shape # We compare data shape
 
 Rental_Weather_2011_2012 = Rentals_Weather_2011.append(Rentals_Weather_2012, ignore_index = True) # We add new data of 2012 to our 2011 data
 
-del (Rentals_Weather_2011, Rentals_Weather_2012)  # We erase what we don´t need anymore
+del (Rentals_Weather_2011, Rentals_Weather_2012, Class_2019_MDA, Holidays, Msg, Msg1, Msg2, Rentals, Rentals_2011_Csv, Rentals_2011_Excel, Temperature, Weather_2011_Csv)  # We erase what we don´t need anymore
 
 # ------------------------------ CREATING AND PLOTTING TEMPERATURE / RENTALS 2011-2012 SCATTER CHART ---------------------------------------------
 
@@ -164,19 +166,24 @@ def BarChart_Holidays():
     Holidays = pd.crosstab(index = wbr["holiday"], columns = "Count")
     Sample = Holidays.sum() # We Sum the Sample Size for the Weather Situation
     
-    print (Holidays)
-    
     plt.bar(Holidays.index, Holidays["Count"]) # We do the bar chart
     YN_Holiday = ('Working Days', 'Holiday')  
     plt.xticks(Holidays.index, YN_Holiday)
     plt.title(label = 'Figure 1.3 - Holiday Days')
     plt.ylabel('Days')
     plt.xlabel('Holidays')
-    plt.legend()
     
     props = dict (boxstyle = 'round', facecolor = 'red', lw = 0.5)
     textstr = '$\mathrm{Sample} = %.0f$' %(Sample) # Insert Legend with sample size
     plt.text (0.85,300, textstr, bbox = props) # Paints the Legend in some part of the chart
+    
+    c = """Day Total
+        Work  710
+        Holiday  21"""
+
+    df = pd.read_csv(StringIO(c), sep="\s+", header=0)
+
+    print(tabulate(df, headers='keys', tablefmt='psql'))
 
 # GROUP EXERCISE --------------------------- CREATING A PROFESSIONAL HISTOGRAM OF BIKE RENTALS --------------------------------------------------
 
@@ -217,13 +224,47 @@ def Histogram_Cnt():
     
     fig.tight_layout()
     plt.show()
+
+# GROUP EXERCISE --------------------------- ANALIZYNG DATES / RENTALS BY CASUALS AND REGISTERED USERS -------------------------------------------
+
+def Cas_Reg_Users():
     
-# ---------------------------------------------------- MAIN - CALLING SCRIPT FUNCTIONS ----------------------------------------------------------
+    wbr = Rental_Weather_2011_2012
+
+    wbr['yr'].replace([0, 1], [2011, 2012], inplace = True)
+    wbr = wbr.rename(columns = {"yr" : "Year"}) # Rename one column
+    wbr = wbr.drop(columns = ['atemp', 'cnt', 'day', 'dteday', 'holiday', 'hum', 'mnth', 'season', 'weathersit', 'weekday', 'windspeed_kh', 'workingday']) # Erase duplicated column
+    wbr = wbr.rename(columns = {"casual" : "Casual"}) # Rename one column
+    wbr = wbr.rename(columns = {"temp_celsius" : "Mean Temp"}) # Rename one column
+    wbr = wbr.rename(columns = {"registered" : "Registered"}) # Rename one column
+
+    CasReg = wbr.groupby(['Year']).agg({'Casual':sum, 'Registered':sum, 'Mean Temp':'mean'})
+
+    ax = CasReg.plot.bar(rot=0)
+    
+    ax.set_xlabel('Years')
+    ax.set_ylabel('Custormers')
+    ax.set_title(r'Figure 1.5 - Casual/Reg Users in Washington DC ' '\n' 'by Capital BikeShare 2011-2012')
+    ax.grid(axis='both', alpha=0.75)
+     
+    c = """Casual Registered MeanTemp
+        2011  247.252     995.851  19.95
+        2012  372.765     1.676.811  20.67"""
+
+    df = pd.read_csv(StringIO(c), sep="\s+", header=0)
+
+    print(tabulate(df, headers='keys', tablefmt='psql'))
+
+# ---------------------------------------------------- MAIN - CALLING SCRIPT FUNCTIONS -----------------------------------------------------------
 
 Scatter_Temp_Rent() # OUR FIRST SCATTER CHART - FIGURE 1.1 - Bike Rental By Temperature 2011-2012
 CrossTab_WS()       # OUR FIRST BAR CHART - FIGURE 1.2 - Weather Situation in Washington
 BarChart_Holidays() # GROUP EXERCISE HOLIDAYS - FIGURE 1.3 - Holiday Days
 Histogram_Cnt()     # GROUP EXERCISE HISTOGRAM CNT - FIGURE 1.4 - Daily Bicycle Rentals in Washington DC by Capital BikeShare 2011-2012
+Cas_Reg_Users()     # GROUP EXERCISE EXTRA - FIGURE 1.5 - Casual/Registered Users in 2011-2012
+
+
+
 
 
 
