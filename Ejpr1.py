@@ -255,16 +255,3 @@ rw_ws = pd.concat([rw_ws,rw_rai], axis=1)
 rw_ws_fig=rw_11_12.boxplot(by ='weathersit', column =['cnt'], grid = True) 
 fig = rw_ws_fig.get_figure()
 fig.savefig('Fig6.jpg')
-
-'''value1=rw_ws.iloc[:, 0]
-value2=rw_ws.iloc[:, 1]
-value3=rw_ws.iloc[:, 2]
-
-print(value1)
-box_plot_data=[value1,value2,value3]
-plt.boxplot(box_plot_data,patch_artist=True,labels=['course1','course2','course3'])
-plt.show()'''
-
-
-##########################################################################################
-
